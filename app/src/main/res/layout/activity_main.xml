@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Campo para la dirección IP -->
+
+    <LinearLayout
+        android:id="@+id/DireccionIPv4"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/Octeto1"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:text="0" />
+
+        <EditText
+            android:id="@+id/Octeto2"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:text="0" />
+
+        <EditText
+            android:id="@+id/Octeto3"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:text="0" />
+
+        <EditText
+            android:id="@+id/Octeto4"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:text="0" />
+    </LinearLayout>
+
+    <!-- Campo para el prefijo de la máscara de subred-->
+    <EditText
+        android:id="@+id/editTextMask"
+        android:layout_width="91dp"
+        android:layout_height="48dp"
+        android:hint="Prefijo: /n" />
+
+    <!-- Botón para calcular -->
+    <Button
+        android:id="@+id/buttonCalculate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calcular Subnetting" />
+
+    <!-- TextView para mostrar el resultado -->
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text="Resultado" />
+
+</LinearLayout>
