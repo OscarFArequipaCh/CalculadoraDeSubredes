@@ -4,6 +4,11 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 
@@ -23,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         val editTextMask = findViewById<EditText>(R.id.editTextMask)
         val buttonCalculate = findViewById<Button>(R.id.buttonCalculate)
         val textViewResult = findViewById<TextView>(R.id.textViewResult)
+        // Referencia al Spinner
+        val spinnerDivisiones = findViewById<Spinner>(R.id.spinnerDivisiones)
 
 
 
@@ -45,15 +52,54 @@ class MainActivity : AppCompatActivity() {
             var BinarioOcteto3 = DecimalToBinary(direccionIP[2])
             var BinarioOcteto4 = DecimalToBinary(direccionIP[3])
 
+            val DireccionIPBinaria = listOf(BinarioOcteto1, BinarioOcteto2, BinarioOcteto3, BinarioOcteto4).joinToString(".")
             // Convierte el prefijo, a la mascara de subred en forma bianria
             // la funcion replace(), elimina el / del prefijo y deja solo el entero
             var mascara = generateSubnetMask(editTextMask.text.toString().replace("/", "").toInt())
             // Rellena los ceros a la izquierda de la mascara
             var mascaraBinaria = toBinaryString(mascara)
 
+            var DireccionRed = calculateSubnet(DireccionIPBinaria, mascara)
+
             // Muestra el resultado de la conversion a binario
-            textViewResult.text = "$BinarioOcteto1\n$BinarioOcteto2\n$BinarioOcteto3\n$BinarioOcteto4\n$mascaraBinaria"
+            //textViewResult.text = "$BinarioOcteto1\n$BinarioOcteto2\n$BinarioOcteto3\n$BinarioOcteto4\n$mascaraBinaria"
+            //textViewResult.text = "$DireccionIPBinaria\n$mascaraBinaria"
+            textViewResult.text = DireccionRed
+
+
+            // Calcula las divisiones posibles para subtenear
+            val divisiones = calcularDivisiones(editTextMask.text.toString().replace("/", "").toInt())
+            // Crear y asignar un adaptador para el Spinner
+            val adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item, // Diseño básico para las opciones
+                divisiones
+            )
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerDivisiones.adapter = adapter
+
+            // Manejar la selección de opciones
+            spinnerDivisiones.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val seleccion = divisiones[position] // Obtiene la opción seleccionada
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Dividir la red en $seleccion subredes",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Acción cuando no se selecciona nada (opcional)
+                }
+            })
         }
+
     }
 
     // Función para convertir decimal a binario
@@ -79,28 +125,39 @@ class MainActivity : AppCompatActivity() {
         return String.format("%32s", Integer.toBinaryString(mask)).replace(' ', '0')
     }
 
+    // Función para calcular la direccion de red y broadcast
+    private fun calculateSubnet(ip: String, mask: Int): String {
+        // Recibira la direccion IP en formato binario tipo string punteado
+        // y la mascara en formato binario tipo entero sin puntear
+        // Transforma la direccion IP de tipo string a entero, y lo almacena de manera segmentda en un array
+        val ipSegments = ip.split(".").map { it.toInt(2) }
 
-
-    // Función para calcular la subred
-    private fun calculateSubnet(ip: String, cidr: Int): String {
-        // Lógica de conversión básica (simplificada para ilustración)
-        val ipSegments = ip.split(".").map { it.toInt() }
-        val mask = (0xffffffff shl (32 - cidr)).toInt()
-
+        // Se operara con AND para obtener la direccion de red, comparando la ip segmentada en el array
+        // con la mascara en formato binario entero sin puntear
         val networkAddress = ipSegments.foldIndexed(0) { i, acc, segment ->
             acc or (segment shl (24 - i * 8))
         } and mask
 
+        // Se operara con OR para obtener la direccion de broadcast, comparando la direccion de red
+        // con la mascara, invirtiendo sus 1 y 0
         val broadcastAddress = networkAddress or mask.inv()
 
-        // Resultado en formato humano
+        // Se devolvera un string, que tendra la direccion de red y broadcast, pero llamando antes a
+        // la funcion formatoIp, para que las transforme a decimal punteado
         return """
             Dirección de Red: ${formatIp(networkAddress)}
             Dirección de Broadcast: ${formatIp(broadcastAddress)}
         """.trimIndent()
+        /*return """
+            Dirección de Red: ${toBinaryString(networkAddress)}
+            Dirección de Broadcast: ${toBinaryString(broadcastAddress)}
+            Dirección IP: ${ipSegments[0]}.${ipSegments[1]}.${ipSegments[2]}.${ipSegments[3]}
+            Dirección IP Input: ${ip}
+            Mascara Input: ${toBinaryString(mask)}
+        """.trimIndent()*/
     }
 
-    // Función auxiliar para convertir int a IP en formato string
+    // Función auxiliar para convertir una direccion de binario sin puntear, a decimal puntado
     private fun formatIp(address: Int): String {
         return listOf(
             (address shr 24) and 0xff,
@@ -109,7 +166,34 @@ class MainActivity : AppCompatActivity() {
             address and 0xff
         ).joinToString(".")
     }
-    fun ipDecimalToBinary(ip: String): String {
+
+
+    fun calcularDivisiones(prefijo: Int): List<Int> {
+        // Validar que el prefijo esté en un rango válido (1-30)
+        if (prefijo < 1 || prefijo > 30) {
+            throw IllegalArgumentException("El prefijo debe estar entre 1 y 30.")
+        }
+
+        // Número de bits disponibles para subredes
+        val bitsDisponibles = 32 - prefijo
+
+        // Generar una lista con las divisiones posibles (2^1, 2^2, ..., 2^bitsDisponibles)
+        val divisiones = mutableListOf<Int>()
+        for (i in 1..bitsDisponibles) {
+            divisiones.add(2.0.pow(i).toInt()) // Elevar 2 a la potencia de i
+        }
+
+        return divisiones
+    }
+
+    // Función de extensión para calcular potencias fácilmente
+    fun Double.pow(exp: Int): Double = Math.pow(this, exp.toDouble())
+
+
+
+
+
+    /*fun ipDecimalToBinary(ip: String): String {
         // Divide la IP en sus octetos
         val octets = ip.split(".")
         if (octets.size != 4) {
@@ -124,7 +208,7 @@ class MainActivity : AppCompatActivity() {
 
         // Une los octetos en formato binario separados por puntos
         return binaryOctets.joinToString(".")
-    }
+    }*/
 
 }
 
