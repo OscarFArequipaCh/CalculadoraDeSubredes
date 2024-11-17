@@ -9,6 +9,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 
@@ -32,6 +34,18 @@ class MainActivity : AppCompatActivity() {
         val spinnerDivisiones = findViewById<Spinner>(R.id.spinnerDivisiones)
 
 
+        // Referencia al RecyclerView
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
+        // Lista de subredes de ejemplo
+        val subredes = listOf(
+            Subred(1,"192.168.1.0", "192.168.1.1 - 192.168.1.254", "192.168.1.255"),
+            Subred(2,"192.168.2.0", "192.168.2.1 - 192.168.2.254", "192.168.2.255")
+        )
+
+        // Configura el RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = SubredAdapter(subredes)
 
         // Configura el botón para realizar el cálculo
         buttonCalculate.setOnClickListener {
@@ -46,19 +60,21 @@ class MainActivity : AppCompatActivity() {
                     else -> 0
                 }
             }
-            // val DecimalOcteto1 = editTextOcteto1.text.toString().toInt()
+            // almacena cada octeto introducido, en cuatro variables, para convertir a binario
             var BinarioOcteto1 = DecimalToBinary(direccionIP[0])
             var BinarioOcteto2 = DecimalToBinary(direccionIP[1])
             var BinarioOcteto3 = DecimalToBinary(direccionIP[2])
             var BinarioOcteto4 = DecimalToBinary(direccionIP[3])
 
+            // Introduce los octetos en una lista, y los une con puntos
             val DireccionIPBinaria = listOf(BinarioOcteto1, BinarioOcteto2, BinarioOcteto3, BinarioOcteto4).joinToString(".")
-            // Convierte el prefijo, a la mascara de subred en forma bianria
+            // Convierte el prefijo, a la mascara de subred en forma binaria
             // la funcion replace(), elimina el / del prefijo y deja solo el entero
             var mascara = generateSubnetMask(editTextMask.text.toString().replace("/", "").toInt())
             // Rellena los ceros a la izquierda de la mascara
-            var mascaraBinaria = toBinaryString(mascara)
+            // var mascaraBinaria = toBinaryString(mascara)
 
+            // Llama a la funcion calculateSubnet, para calcular la direccion de red y broadcast
             var DireccionRed = calculateSubnet(DireccionIPBinaria, mascara)
 
             // Muestra el resultado de la conversion a binario
