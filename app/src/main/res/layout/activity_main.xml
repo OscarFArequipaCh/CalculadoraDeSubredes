@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="0dp">
+
+    <!-- Título en la parte superior -->
+    <TextView
+        android:id="@+id/BannerTextView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="0dp"
+        android:background="#FF6200EE"
+        android:gravity="center"
+        android:padding="0dp"
+        android:text="Calculadora Subneting IPv4"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <!-- Campo para la dirección IP -->
-
     <LinearLayout
         android:id="@+id/DireccionIPv4"
         android:layout_width="match_parent"
@@ -49,14 +61,15 @@
             android:ems="10"
             android:inputType="text"
             android:text="0" />
+
+        <EditText
+            android:id="@+id/editTextMask"
+            android:layout_width="91dp"
+            android:layout_height="48dp"
+            android:hint="Prefijo: /n" />
     </LinearLayout>
 
     <!-- Campo para el prefijo de la máscara de subred-->
-    <EditText
-        android:id="@+id/editTextMask"
-        android:layout_width="91dp"
-        android:layout_height="48dp"
-        android:hint="Prefijo: /n" />
 
     <!-- Botón para calcular -->
     <Button
@@ -67,30 +80,69 @@
 
     <!-- TextView para mostrar el resultado -->
     <TextView
-        android:id="@+id/textViewResult"
+        android:id="@+id/textViewRed"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="41dp"
+        android:background="@drawable/border"
+        android:gravity="center"
         android:paddingTop="16dp"
-        android:text="Resultado" />
+        android:text="Direccion de Red"
+        android:textColor="#000000"
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/textViewBroadcast"
+        android:layout_width="match_parent"
+        android:layout_height="41dp"
+        android:background="@drawable/border"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:text="Direccion de Broadcast"
+        android:textColor="#000000"
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/textViewMascara"
+        android:layout_width="match_parent"
+        android:layout_height="41dp"
+        android:background="@drawable/border"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:text="Mascara de Subred"
+        android:textColor="#000000"
+        android:textSize="18dp" />
 
     <Spinner
         android:id="@+id/spinnerDivisiones"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_margin="16dp"
+        android:background="@drawable/border"
         android:spinnerMode="dropdown" />
+
+    <TextView
+        android:id="@+id/TitleTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF6200EE"
+        android:gravity="center"
+        android:padding="0dp"
+        android:text="Tabla de Subredes"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/buttonClear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="Vaciar la Tabla" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
 
 </LinearLayout>

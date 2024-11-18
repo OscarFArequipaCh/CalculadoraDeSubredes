@@ -35,7 +35,9 @@ class MainActivity : AppCompatActivity() {
         val editTextMask = findViewById<EditText>(R.id.editTextMask)
         val buttonCalculate = findViewById<Button>(R.id.buttonCalculate)
         val buttonClear = findViewById<Button>(R.id.buttonClear)
-        val textViewResult = findViewById<TextView>(R.id.textViewResult)
+        val textViewRed = findViewById<TextView>(R.id.textViewRed)
+        val textViewBroadcast = findViewById<TextView>(R.id.textViewBroadcast)
+        val textViewMascara = findViewById<TextView>(R.id.textViewMascara)
         // Referencia al Spinner
         val spinnerDivisiones = findViewById<Spinner>(R.id.spinnerDivisiones)
         // Referencia al RecyclerView
@@ -49,8 +51,39 @@ class MainActivity : AppCompatActivity() {
 
         // Configura el botón para realizar el cálculo
         buttonCalculate.setOnClickListener {
-        // array con los 4 cotectos transformados a enteros
-            val direccionIP = IntArray(4) {
+
+            // Convertir valores de octetos y prefijo a enteros (o valores nulos si no son válidos)
+            val octeto1 = editTextOcteto1.text.toString().toIntOrNull()
+            val octeto2 = editTextOcteto2.text.toString().toIntOrNull()
+            val octeto3 = editTextOcteto3.text.toString().toIntOrNull()
+            val octeto4 = editTextOcteto4.text.toString().toIntOrNull()
+            val prefijoTexto = editTextMask.text.toString().trim() // Elimina espacios en blanco
+            val prefijo = prefijoTexto.replace("/", "").toIntOrNull()
+
+            // Validar que los octetos estén en el rango 0-255
+            if (octeto1 !in 0..255 || octeto2 !in 0..255 || octeto3 !in 0..255 || octeto4 !in 0..255) {
+                Toast.makeText(this, "Los octetos deben estar entre 0 y 255", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Validar prefijo
+            if (prefijoTexto.isEmpty() || prefijo == null || prefijo !in 1..32) {
+                Toast.makeText(this, "El prefijo debe ser un número entre 1 y 32", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Continuar con los cálculos solo si todas las validaciones pasan
+            val direccionIP = intArrayOf(octeto1!!, octeto2!!, octeto3!!, octeto4!!)
+            val BinarioOcteto1 = DecimalToBinary(direccionIP[0])
+            val BinarioOcteto2 = DecimalToBinary(direccionIP[1])
+            val BinarioOcteto3 = DecimalToBinary(direccionIP[2])
+            val BinarioOcteto4 = DecimalToBinary(direccionIP[3])
+            val DireccionIPBinaria = listOf(BinarioOcteto1, BinarioOcteto2, BinarioOcteto3, BinarioOcteto4).joinToString(".")
+            val mascara = generateSubnetMask(prefijo)
+
+            val (DireccionRed, DireccionBroadcast) = calcularRedBroadcast(DireccionIPBinaria, mascara)
+            // array con los 4 cotectos transformados a enteros
+            /*val direccionIP = IntArray(4) {
                 // Condiciona que deban ser enteros para introducirlos al array
                 when (it) {
                     0 -> editTextOcteto1.text.toString().toIntOrNull() ?: 0
@@ -71,16 +104,20 @@ class MainActivity : AppCompatActivity() {
             // la funcion replace(), elimina el / del prefijo y deja solo el entero
             var mascara = generateSubnetMask(editTextMask.text.toString().replace("/", "").toInt())
             // Llama a la funcion calculateSubnet, para calcular la direccion de red y broadcast
-            var (DireccionRed, DireccionBroadcast) = calcularRedBroadcast(DireccionIPBinaria, mascara)
-
-            // Muestra en el Textview, las direcciones de Red y Broadcast
-            textViewResult.text = """
+            var (DireccionRed, DireccionBroadcast) = calcularRedBroadcast(DireccionIPBinaria, mascara)*/
+            // Muestra en los Textview, la direccion de Red, Broadcast y la mascara
+            textViewRed.text = """
             Dirección de Red: ${formatIp(DireccionRed)}
+        """.trimIndent()
+            textViewBroadcast.text = """
             Dirección de Broadcast: ${formatIp(DireccionBroadcast)}
+        """.trimIndent()
+            textViewMascara.text = """
+            Mascar de Subred: ${formatIp(mascara)}
         """.trimIndent()
 
             // Calcula las divisiones posibles para subtenear, para introducirlas en un spinner
-            val divisiones = calcularDivisiones(editTextMask.text.toString().replace("/", "").toInt())
+            val divisiones = calcularDivisiones(prefijo)
             // Crear y asignar un adaptador para el Spinner
             val adapter = ArrayAdapter(
                 this,
@@ -105,8 +142,9 @@ class MainActivity : AppCompatActivity() {
                         "Dividir la red en $seleccion subredes",
                         Toast.LENGTH_SHORT
                     ).show()
+                    VaciarSubredes()
                     // Calcula las subredes solicitadas, y guarda en la base de datos
-                    calcularSubredes(DireccionRed, editTextMask.text.toString().replace("/", "").toInt(), seleccion)
+                    calcularSubredes(DireccionRed, prefijo, seleccion)
                     //  Solicita la lista de subredes desde la base de datos
                     val listaSubredes = mostrarSubredes()
                     // Configura el RecyclerView

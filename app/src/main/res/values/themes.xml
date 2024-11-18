@@ -3,6 +3,12 @@
     <style name="Base.Theme.CalculadoraDeSubredes" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Elimina cualquier padding predeterminado -->
+        <item name="android:padding">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
     </style>
 
     <style name="Theme.CalculadoraDeSubredes" parent="Base.Theme.CalculadoraDeSubredes" />
