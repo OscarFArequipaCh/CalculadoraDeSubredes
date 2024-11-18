@@ -68,4 +68,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         val db = writableDatabase
         return db.delete(TABLE_NAME, "$COLUMN_ID = ?", arrayOf(id.toString()))
     }
+
+    fun vaciarTablaSubredes(): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_NAME, null, null)
+    }
 }

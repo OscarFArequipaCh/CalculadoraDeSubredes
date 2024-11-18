@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class SubredAdapter(private val subredes: List<Subred>) :
+class SubredAdapter(subredesIniciales: List<Subred>) :
     RecyclerView.Adapter<SubredAdapter.SubredViewHolder>() {
+
+    private val subredes = mutableListOf<Subred>().apply { addAll(subredesIniciales) }
 
     // ViewHolder interno para manejar cada ítem
     class SubredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,5 +40,11 @@ class SubredAdapter(private val subredes: List<Subred>) :
     override fun getItemCount(): Int {
         // Devuelve el número de elementos en la lista
         return subredes.size
+    }
+
+    fun actualizarDatos(nuevasSubredes: List<Subred>) {
+        subredes.clear() // Limpia la lista actual
+        subredes.addAll(nuevasSubredes) // Agrega los nuevos datos
+        notifyDataSetChanged() // Notifica al RecyclerView que los datos han cambiado
     }
 }
